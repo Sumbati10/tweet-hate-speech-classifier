@@ -1,0 +1,5 @@
+outs:
+- md5: 50c0df6093dab2487c21954e0df49a3d
+  size: 3135128
+  hash: md5
+  path: twitter_hate_speech.csv

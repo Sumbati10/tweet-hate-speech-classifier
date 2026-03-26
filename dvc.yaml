@@ -1,0 +1,26 @@
+stages:
+  preprocess:
+    cmd: PYTHONPATH=src python -m hatespeech.preprocess
+    deps:
+      - data/raw/twitter_hate_speech.csv
+      - src/hatespeech/preprocess.py
+      - src/hatespeech/config.py
+      - params.yaml
+    outs:
+      - data/processed/train.csv
+      - data/processed/test.csv
+    wdir: .
+
+  train:
+    cmd: PYTHONPATH=src python -m hatespeech.train
+    deps:
+      - data/processed/train.csv
+      - data/processed/test.csv
+      - src/hatespeech/train.py
+      - src/hatespeech/config.py
+      - params.yaml
+    outs:
+      - models/bert
+    metrics:
+      - metrics.json
+    wdir: .
