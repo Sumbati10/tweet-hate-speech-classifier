@@ -1,3 +1,6 @@
+# File: params.yaml
+# Purpose: Training and data configuration
+
 data:
   raw_path: data/raw/twitter_hate_speech.csv
   train_path: data/processed/train.csv
