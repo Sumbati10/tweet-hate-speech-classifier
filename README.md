@@ -151,6 +151,8 @@ Once the API is running, open:
 
 - http://localhost:8000/ui/
 
+![Web UI screenshot](assets/ui_screenshot.png)
+
 The UI:
 
 - lets you paste text
