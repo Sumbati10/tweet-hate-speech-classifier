@@ -1,3 +1,6 @@
+# File: dvc.yaml
+# Purpose: DVC pipeline stages for preprocessing and training
+
 stages:
   preprocess:
     cmd: PYTHONPATH=src python -m hatespeech.preprocess
