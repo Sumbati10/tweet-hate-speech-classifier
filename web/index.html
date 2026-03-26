@@ -1,0 +1,320 @@
+<!doctype html>
+<html lang="en">
+  <head>
+    <meta charset="utf-8" />
+    <meta name="viewport" content="width=device-width, initial-scale=1" />
+    <title>Hate Speech Detection</title>
+    <style>
+      :root {
+        color-scheme: light dark;
+        --bg: #0b1220;
+        --panel: rgba(255,255,255,.06);
+        --border: rgba(255,255,255,.10);
+        --text: rgba(255,255,255,.92);
+        --muted: rgba(255,255,255,.70);
+        --brand: #7c3aed;
+        --good: #16a34a;
+        --bad: #ef4444;
+        --warn: #f59e0b;
+      }
+      @media (prefers-color-scheme: light) {
+        :root {
+          --bg: #f6f7fb;
+          --panel: rgba(15,23,42,.04);
+          --border: rgba(15,23,42,.12);
+          --text: rgba(15,23,42,.92);
+          --muted: rgba(15,23,42,.70);
+        }
+      }
+
+      body {
+        margin: 0;
+        font-family: ui-sans-serif, system-ui, -apple-system, Segoe UI, Roboto, Arial, sans-serif;
+        background:
+          radial-gradient(1000px 500px at 20% 10%, rgba(124,58,237,.35), transparent 60%),
+          radial-gradient(900px 520px at 80% 0%, rgba(59,130,246,.25), transparent 55%),
+          var(--bg);
+        color: var(--text);
+      }
+      .container { max-width: 980px; margin: 0 auto; padding: 28px 18px 64px; }
+      header { display: flex; justify-content: space-between; align-items: flex-end; gap: 16px; flex-wrap: wrap; }
+      h1 { font-size: 26px; margin: 0; letter-spacing: .2px; }
+      .subtitle { margin: 6px 0 0; color: var(--muted); font-size: 14px; }
+      .grid { display: grid; grid-template-columns: 1.1fr .9fr; gap: 16px; margin-top: 18px; }
+      @media (max-width: 920px) { .grid { grid-template-columns: 1fr; } }
+
+      .card {
+        background: color-mix(in oklab, var(--panel), transparent 0%);
+        border: 1px solid var(--border);
+        border-radius: 14px;
+        padding: 16px;
+        box-shadow: 0 10px 30px rgba(0,0,0,.12);
+      }
+
+      label { display: block; color: var(--muted); font-size: 12px; margin-bottom: 6px; }
+      textarea {
+        width: 100%;
+        min-height: 160px;
+        padding: 12px 12px;
+        font-size: 15px;
+        line-height: 1.5;
+        border-radius: 12px;
+        border: 1px solid var(--border);
+        background: transparent;
+        color: var(--text);
+        outline: none;
+      }
+      input[type="text"] {
+        padding: 10px 12px;
+        font-size: 13px;
+        width: 100%;
+        border-radius: 12px;
+        border: 1px solid var(--border);
+        background: transparent;
+        color: var(--text);
+        outline: none;
+      }
+
+      .row { display: flex; gap: 10px; flex-wrap: wrap; align-items: center; }
+      .row > * { flex: 1 1 auto; }
+
+      button {
+        border: 1px solid var(--border);
+        background: linear-gradient(180deg, rgba(124,58,237,.95), rgba(124,58,237,.75));
+        color: white;
+        padding: 10px 14px;
+        border-radius: 12px;
+        font-weight: 600;
+        cursor: pointer;
+      }
+      button.secondary {
+        background: transparent;
+        color: var(--text);
+      }
+      button:disabled { opacity: .6; cursor: not-allowed; }
+
+      .muted { color: var(--muted); }
+      .pill {
+        display: inline-flex;
+        align-items: center;
+        gap: 8px;
+        padding: 8px 10px;
+        border-radius: 999px;
+        border: 1px solid var(--border);
+        background: rgba(255,255,255,.03);
+        font-size: 13px;
+        font-weight: 700;
+      }
+      .dot { width: 10px; height: 10px; border-radius: 50%; background: var(--warn); }
+
+      .meter { height: 10px; width: 100%; border-radius: 999px; background: rgba(127,127,127,.20); overflow: hidden; border: 1px solid var(--border); }
+      .bar { height: 100%; width: 0%; background: var(--brand); }
+      .kv { display: grid; grid-template-columns: 1fr auto; gap: 10px; align-items: center; margin-top: 10px; }
+      .kv .name { color: var(--muted); font-size: 13px; }
+      .kv .val { font-variant-numeric: tabular-nums; font-weight: 700; }
+
+      details { margin-top: 14px; }
+      pre { white-space: pre-wrap; word-break: break-word; margin: 10px 0 0; padding: 12px; border: 1px solid var(--border); border-radius: 12px; background: rgba(0,0,0,.12); }
+    </style>
+  </head>
+  <body>
+    <div class="container">
+      <header>
+        <div>
+          <h1>Hate Speech Detection</h1>
+          <div class="subtitle">Paste a message, then run the BERT model. The output shows “Hate Speech” or “Not Hate” with confidence.</div>
+        </div>
+        <div class="pill" id="verdictPill">
+          <span class="dot" id="verdictDot"></span>
+          <span id="verdictText">Ready</span>
+        </div>
+      </header>
+
+      <div class="grid">
+        <div class="card">
+          <div class="row">
+            <div style="min-width: 260px; flex: 2 1 420px;">
+              <label for="apiUrl">API URL</label>
+              <input id="apiUrl" type="text" value="" placeholder="Leave empty to use same host" />
+            </div>
+            <div style="flex: 1 1 160px; align-self: end;">
+              <button class="secondary" id="useLocal" type="button">Use this host</button>
+            </div>
+          </div>
+
+          <div style="margin-top: 12px;">
+            <label for="text">Text</label>
+            <textarea id="text">you are disgusting and i hate you</textarea>
+          </div>
+
+          <div style="margin-top: 12px;">
+            <label for="threshold">Decision threshold (hate probability)</label>
+            <div class="row">
+              <input id="threshold" type="range" min="0" max="1" step="0.01" value="0.5" style="flex: 2 1 420px;" />
+              <div class="pill" style="flex: 0 0 auto;"><span class="muted">t=</span> <span id="thresholdVal">0.50</span></div>
+            </div>
+            <div class="muted" style="margin-top: 8px; font-size: 12px;">If hate probability ≥ threshold, the UI will label it “Hate Speech”.</div>
+          </div>
+
+          <div class="row" style="margin-top: 14px;">
+            <button id="predictBtn" type="button">Predict</button>
+            <span id="status" class="muted"></span>
+          </div>
+        </div>
+
+        <div class="card">
+          <h2 style="margin: 0 0 10px; font-size: 16px;">Result</h2>
+
+          <div class="kv">
+            <div class="name">Label</div>
+            <div class="val" id="prettyLabel">—</div>
+          </div>
+          <div class="kv">
+            <div class="name">Confidence</div>
+            <div class="val" id="confidence">—</div>
+          </div>
+
+          <div style="margin-top: 12px;">
+            <div class="row" style="justify-content: space-between;">
+              <div class="name" style="flex: 1 1 auto;">Not Hate</div>
+              <div class="val" id="pNot">—</div>
+            </div>
+            <div class="meter"><div class="bar" id="barNot"></div></div>
+          </div>
+
+          <div style="margin-top: 12px;">
+            <div class="row" style="justify-content: space-between;">
+              <div class="name" style="flex: 1 1 auto;">Hate Speech</div>
+              <div class="val" id="pHate">—</div>
+            </div>
+            <div class="meter"><div class="bar" id="barHate"></div></div>
+          </div>
+
+          <details>
+            <summary class="muted">Raw JSON</summary>
+            <pre id="result">Click Predict.</pre>
+          </details>
+        </div>
+      </div>
+    </div>
+
+    <script>
+      const apiUrlInput = document.getElementById('apiUrl');
+      const useLocalBtn = document.getElementById('useLocal');
+      const predictBtn = document.getElementById('predictBtn');
+      const textEl = document.getElementById('text');
+      const resultEl = document.getElementById('result');
+      const statusEl = document.getElementById('status');
+      const prettyLabelEl = document.getElementById('prettyLabel');
+      const confidenceEl = document.getElementById('confidence');
+      const pNotEl = document.getElementById('pNot');
+      const pHateEl = document.getElementById('pHate');
+      const barNotEl = document.getElementById('barNot');
+      const barHateEl = document.getElementById('barHate');
+      const verdictPill = document.getElementById('verdictPill');
+      const verdictDot = document.getElementById('verdictDot');
+      const verdictText = document.getElementById('verdictText');
+      const thresholdEl = document.getElementById('threshold');
+      const thresholdValEl = document.getElementById('thresholdVal');
+
+      function getBaseUrl() {
+        const v = (apiUrlInput.value || '').trim();
+        if (v) return v.replace(/\/$/, '');
+        return window.location.origin;
+      }
+
+      function fmtPct(x) {
+        if (typeof x !== 'number' || Number.isNaN(x)) return '—';
+        return (x * 100).toFixed(2) + '%';
+      }
+
+      function setVerdict(kind, text) {
+        verdictText.textContent = text;
+        if (kind === 'hate') {
+          verdictDot.style.background = getComputedStyle(document.documentElement).getPropertyValue('--bad');
+        } else if (kind === 'not') {
+          verdictDot.style.background = getComputedStyle(document.documentElement).getPropertyValue('--good');
+        } else {
+          verdictDot.style.background = getComputedStyle(document.documentElement).getPropertyValue('--warn');
+        }
+      }
+
+      useLocalBtn.addEventListener('click', () => {
+        apiUrlInput.value = window.location.origin;
+      });
+
+      thresholdEl.addEventListener('input', () => {
+        thresholdValEl.textContent = Number(thresholdEl.value).toFixed(2);
+      });
+
+      predictBtn.addEventListener('click', async () => {
+        statusEl.textContent = 'Calling /predict ...';
+        resultEl.textContent = '';
+        predictBtn.disabled = true;
+        setVerdict('ready', 'Running...');
+
+        const baseUrl = getBaseUrl();
+        const url = baseUrl + '/predict';
+
+        try {
+          const resp = await fetch(url, {
+            method: 'POST',
+            headers: { 'Content-Type': 'application/json' },
+            body: JSON.stringify({ text: textEl.value })
+          });
+
+          const bodyText = await resp.text();
+          let body;
+          try { body = JSON.parse(bodyText); } catch { body = bodyText; }
+
+          if (!resp.ok) {
+            statusEl.textContent = 'Error: ' + resp.status;
+            resultEl.textContent = JSON.stringify(body, null, 2);
+            prettyLabelEl.textContent = '—';
+            confidenceEl.textContent = '—';
+            pNotEl.textContent = '—';
+            pHateEl.textContent = '—';
+            barNotEl.style.width = '0%';
+            barHateEl.style.width = '0%';
+            setVerdict('ready', 'Error');
+            return;
+          }
+
+          statusEl.textContent = 'OK';
+          resultEl.textContent = JSON.stringify(body, null, 2);
+
+          const pNot = Number(body?.scores?.not_hate);
+          const pHate = Number(body?.scores?.hate);
+          const threshold = Number(thresholdEl.value);
+
+          const uiLabel = (pHate >= threshold) ? 1 : 0;
+          const pretty = uiLabel === 1 ? 'Hate Speech' : 'Not Hate';
+          const conf = Math.max(pNot, pHate);
+
+          prettyLabelEl.textContent = pretty;
+          confidenceEl.textContent = fmtPct(conf);
+          pNotEl.textContent = fmtPct(pNot);
+          pHateEl.textContent = fmtPct(pHate);
+
+          barNotEl.style.width = (pNot * 100).toFixed(2) + '%';
+          barHateEl.style.width = (pHate * 100).toFixed(2) + '%';
+
+          barNotEl.style.background = getComputedStyle(document.documentElement).getPropertyValue('--good');
+          barHateEl.style.background = getComputedStyle(document.documentElement).getPropertyValue('--bad');
+
+          setVerdict(uiLabel === 1 ? 'hate' : 'not', pretty);
+        } catch (e) {
+          statusEl.textContent = 'Request failed';
+          resultEl.textContent = String(e);
+          setVerdict('ready', 'Request failed');
+        }
+
+        predictBtn.disabled = false;
+      });
+
+      apiUrlInput.value = window.location.origin;
+      thresholdValEl.textContent = Number(thresholdEl.value).toFixed(2);
+      setVerdict('ready', 'Ready');
+    </script>
+  </body>
+</html>
