@@ -1,3 +1,8 @@
+#+#+#+#+############################################################
+# File: src/hatespeech/train.py
+# Purpose: Fine-tune BERT and log metrics/artifacts with MLflow
+#+#+#+#+############################################################
+
 from __future__ import annotations
 
 import json
