@@ -126,6 +126,8 @@ uvicorn api.app:app --host 0.0.0.0 --port 8000
 - `GET /docs` (Swagger UI)
 - `GET /ui/` (HTML website)
 
+![Swagger UI screenshot](assets/ui_screenshot_2.png)
+
 ### Example request
 
 ```bash
