@@ -1,3 +1,5 @@
+<!-- File: README.md | Purpose: Project overview and runbook -->
+
 # Tweet Hate Speech Classifier (BERT) — DVC + MLflow + FastAPI + Web UI
 
 This repository contains a small, production-style ML system for **binary hate-speech / offensive language detection** using **BERT** fine-tuning with:
