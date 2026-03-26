@@ -1,3 +1,8 @@
+#+#+#+#+############################################################
+# File: src/hatespeech/preprocess.py
+# Purpose: Create reproducible train/test splits from the raw CSV
+#+#+#+#+############################################################
+
 from __future__ import annotations
 
 from pathlib import Path
