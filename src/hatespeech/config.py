@@ -1,3 +1,8 @@
+#+#+#+#+############################################################
+# File: src/hatespeech/config.py
+# Purpose: Load params.yaml into a typed Config object
+#+#+#+#+############################################################
+
 from __future__ import annotations
 
 from dataclasses import dataclass
