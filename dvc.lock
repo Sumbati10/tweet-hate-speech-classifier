@@ -1,0 +1,63 @@
+schema: '2.0'
+stages:
+  preprocess:
+    cmd: PYTHONPATH=src python -m hatespeech.preprocess
+    deps:
+    - path: data/raw/twitter_hate_speech.csv
+      hash: md5
+      md5: 50c0df6093dab2487c21954e0df49a3d
+      size: 3135128
+    - path: params.yaml
+      hash: md5
+      md5: b50ab101986794667bcec6b87518cd41
+      size: 639
+    - path: src/hatespeech/config.py
+      hash: md5
+      md5: d4baa3634337ab2f666df1bc0c616b24
+      size: 2297
+    - path: src/hatespeech/preprocess.py
+      hash: md5
+      md5: 99f86660b94ea914dcfec04d5c94bd12
+      size: 979
+    outs:
+    - path: data/processed/test.csv
+      hash: md5
+      md5: 13a2bf2ec5b16d6feca1a74cca6c2f02
+      size: 583566
+    - path: data/processed/train.csv
+      hash: md5
+      md5: 91a0f770251a0568fdb9020cb36a63dd
+      size: 2338942
+  train:
+    cmd: PYTHONPATH=src python -m hatespeech.train
+    deps:
+    - path: data/processed/test.csv
+      hash: md5
+      md5: 13a2bf2ec5b16d6feca1a74cca6c2f02
+      size: 583566
+    - path: data/processed/train.csv
+      hash: md5
+      md5: 91a0f770251a0568fdb9020cb36a63dd
+      size: 2338942
+    - path: params.yaml
+      hash: md5
+      md5: b50ab101986794667bcec6b87518cd41
+      size: 639
+    - path: src/hatespeech/config.py
+      hash: md5
+      md5: d4baa3634337ab2f666df1bc0c616b24
+      size: 2297
+    - path: src/hatespeech/train.py
+      hash: md5
+      md5: 278bac57083079bebdc92e2eec6e7d13
+      size: 4355
+    outs:
+    - path: metrics.json
+      hash: md5
+      md5: 07751786071f34e0af159d780119ffb1
+      size: 301
+    - path: models/bert
+      hash: md5
+      md5: 61eabe32aee6df389df820fb44cf9934.dir
+      size: 438908804
+      nfiles: 7
